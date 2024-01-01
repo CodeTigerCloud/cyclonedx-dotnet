@@ -65,7 +65,7 @@ jobs:
           github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
      # Generate the JSON with the docker container as additional smoke test
       - name: Generate JSON SBOM
-        run: docker run --rm -v ${GITHUB_WORKSPACE}:/usr/src/project cyclonedx/cyclonedx-dotnet:${{ steps.package_release.outputs.version }} /usr/src/project/CycloneDX.sln -o /usr/src/project 
+        run: docker run --rm -v ${GITHUB_WORKSPACE}:/usr/src/project cyclonedx/cyclonedx-dotnet:${{ steps.package_release.outputs.version }} /usr/src/project/CycloneDX.sln -j -o /usr/src/project 
 
       - name: Create github release and git tag for release
         id: create_release
