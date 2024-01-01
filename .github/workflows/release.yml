@@ -58,15 +58,18 @@ jobs:
         run: |
           dotnet tool install --global CycloneDX --version ${{ steps.package_release.outputs.version }} --add-source ./nupkgs
 
-      - name: Generate XML SBOM
-        uses: CycloneDX/gh-dotnet-generate-sbom@master
-        with:
-          path: ./CycloneDX.sln
-          github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate JSON SBOM
-        uses: CycloneDX/gh-dotnet-generate-sbom@master
-        with:
-          path: ./CycloneDX.sln
-          json: true
-          github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate BOM using Docker Container
+        run: |       
+          docker run --rm -v $(pwd):/usr/src/project $REPO:$VERSION /usr/src/project/CycloneDX.sln -o /usr/src/project 
+      
+#      - name: Generate XML SBOM
+#        uses: CycloneDX/gh-dotnet-generate-sbom@master
+#        with:
+#          path: ./CycloneDX.sln
+#          github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Generate JSON SBOM
+#        uses: CycloneDX/gh-dotnet-generate-sbom@master
+#        with:
+#          path: ./CycloneDX.sln
+#          json: true
+#          github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
