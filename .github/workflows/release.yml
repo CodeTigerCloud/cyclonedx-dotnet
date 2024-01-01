@@ -66,5 +66,5 @@ jobs:
           
       # Generate the JSON with the docker container as additional smoke test
       - name: Generate JSON SBOM
-        run: docker run --rm -v ${GITHUB_WORKSPACE}:/usr/src/project $REPO:$VERSION /usr/src/project/CycloneDX.sln -o /usr/src/project 
+        run: docker run --rm -v ${GITHUB_WORKSPACE}:/usr/src/project cyclonedx/cyclonedx-dotnet:${{ steps.package_release.outputs.version }} /usr/src/project/CycloneDX.sln -o /usr/src/project 
 
