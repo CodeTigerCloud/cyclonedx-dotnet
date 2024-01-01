@@ -36,8 +36,8 @@ jobs:
             8.x
 
       # The tests should have already been run during the PR workflow, so this is really just a sanity check
-      #- name: Tests
-      #  run: dotnet test --framework net8.0
+      - name: Tests
+        run: dotnet test --framework net8.0
 
       # Build and package everything, including the Docker image
       - name: Package release
@@ -63,8 +63,47 @@ jobs:
         with:
           path: ./CycloneDX.sln
           github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
-          
-      # Generate the JSON with the docker container as additional smoke test
+     # Generate the JSON with the docker container as additional smoke test
       - name: Generate JSON SBOM
         run: docker run --rm -v ${GITHUB_WORKSPACE}:/usr/src/project cyclonedx/cyclonedx-dotnet:${{ steps.package_release.outputs.version }} /usr/src/project/CycloneDX.sln -o /usr/src/project 
 
+      - name: Create github release and git tag for release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_name: ${{ steps.package_release.outputs.version }}
+          tag_name: v${{ steps.package_release.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: Upload package to github release
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.package_release.outputs.package_filename }}
+          asset_name: ${{ steps.package_release.outputs.package_name }}
+          asset_content_type: application/zip
+
+      - name: Upload XML SBOM to github release
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bom.xml
+          asset_name: bom.xml
+          asset_content_type: application/xml
+
+      - name: Upload JSON SBOM to github release
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bom.json
+          asset_name: bom.json
+          asset_content_type: application/json
