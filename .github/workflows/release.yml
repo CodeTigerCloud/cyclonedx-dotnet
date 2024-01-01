@@ -60,7 +60,7 @@ jobs:
 
       - name: Generate BOM using Docker Container
         run: |       
-          docker run --rm -v $(pwd):/usr/src/project $REPO:$VERSION /usr/src/project/CycloneDX.sln -o /usr/src/project 
+          docker run --rm -v "$(pwd)":/usr/src/project $REPO:$VERSION /usr/src/project/CycloneDX.sln -o /usr/src/project 
       
 #      - name: Generate XML SBOM
 #        uses: CycloneDX/gh-dotnet-generate-sbom@master
