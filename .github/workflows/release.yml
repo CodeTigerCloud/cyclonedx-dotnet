@@ -60,7 +60,7 @@ jobs:
 
       - name: Generate BOM using Docker Container
         run: |  
-          echo $REPO
+          echo "repo: $REPO"
           echo $VERSION
           echo $(pwd)
           docker run --rm -v $(pwd):/usr/src/project $REPO:$VERSION /usr/src/project/CycloneDX.sln -o /usr/src/project 
