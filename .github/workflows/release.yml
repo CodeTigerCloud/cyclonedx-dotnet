@@ -35,6 +35,10 @@ jobs:
           dotnet-version: |
             8.x
 
+      # The tests should have already been run during the PR workflow, so this is really just a sanity check
+      #- name: Tests
+      #  run: dotnet test --framework net8.0
+
       # Build and package everything, including the Docker image
       - name: Package release
         id: package_release
@@ -47,18 +51,20 @@ jobs:
           REPO=cyclonedx/cyclonedx-dotnet
           dotnet build --configuration Release /p:Version=$VERSION
           dotnet pack CycloneDX/CycloneDX.csproj --configuration Release /p:Version=$VERSION --output $OUTPUT
-          docker build -f Dockerfile --build-arg VERSION=$VERSION -t $REPO:$VERSION -t $REPO:latest .          
-          docker run --rm -v ${GITHUB_WORKSPACE}:/usr/src/project $REPO:$VERSION /usr/src/project/CycloneDX.sln -o /usr/src/project 
+          docker build -f Dockerfile --build-arg VERSION=$VERSION -t $REPO:$VERSION -t $REPO:latest .
 
+      # We install the newly generated tool as bit of a "smoke test" and to generate an SBOM for the release
+      - name: Install newly generated version of CLI tool
+        run: |
+          dotnet tool install --global CycloneDX --version ${{ steps.package_release.outputs.version }} --add-source ./nupkgs
 
-#      - name: Generate XML SBOM
-#        uses: CycloneDX/gh-dotnet-generate-sbom@master
-#        with:
-#          path: ./CycloneDX.sln
-#          github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Generate JSON SBOM
-#        uses: CycloneDX/gh-dotnet-generate-sbom@master
-#        with:
-#          path: ./CycloneDX.sln
-#          json: true
-#          github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate XML SBOM
+        uses: CycloneDX/gh-dotnet-generate-sbom@master
+        with:
+          path: ./CycloneDX.sln
+          github-bearer-token: ${{ secrets.GITHUB_TOKEN }}
+          
+      # Generate the JSON with the docker container as additional smoke test
+      - name: Generate JSON SBOM
+        run: docker run --rm -v ${GITHUB_WORKSPACE}:/usr/src/project $REPO:$VERSION /usr/src/project/CycloneDX.sln -o /usr/src/project 
+
