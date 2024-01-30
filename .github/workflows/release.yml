@@ -38,8 +38,8 @@ jobs:
             8.x
 
       # The tests should have already been run during the PR workflow, so this is really just a sanity check
-      - name: Tests
-        run: dotnet test --framework net8.0
+      # - name: Tests
+      #   run: dotnet test --framework net8.0
 
       # Build and package everything, including the Docker image
       - name: Package release
