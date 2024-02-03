@@ -50,9 +50,9 @@ jobs:
           NUGETVERSION=`nbgv get-version --variable NuGetPackageVersion`
           OUTPUT=./nupkgs
 
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "PACKAG_NAME=CycloneDX.$NUGETVERSION.nupkg" >> $GITHUB_ENV
-          echo "PACKAGE_FILENAME=$OUTPUT/CycloneDX.$NUGETVERSION.nupkg" >> $GITHUB_ENV
+          echo "##[set-output name=version;]$VERSION"
+          echo "##[set-output name=package_name;]CycloneDX.$VERSION.nupkg"
+          echo "##[set-output name=package_filename;]$OUTPUT/CycloneDX.$VERSION.nupkg"
 
           REPO=cyclonedx/cyclonedx-dotnet
           dotnet build --configuration Release
