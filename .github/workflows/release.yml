@@ -49,13 +49,15 @@ jobs:
           VERSION=`nbgv get-version --variable Version`
           NUGETVERSION=`nbgv get-version --variable NuGetPackageVersion`
           OUTPUT=./nupkgs
-          echo "##[set-output name=version;]$VERSION"
-          echo "##[set-output name=package_name;]CycloneDX.$NUGETVERSION.nupkg"
-          echo "##[set-output name=package_filename;]$OUTPUT/CycloneDX.$NUGETVERSION.nupkg"
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "PACKAG_NAME=CycloneDX.$NUGETVERSION.nupkg" >> $GITHUB_ENV
+          echo "PACKAGE_FILENAME=$OUTPUT/CycloneDX.$NUGETVERSION.nupkg" >> $GITHUB_ENV
+
           REPO=cyclonedx/cyclonedx-dotnet
           dotnet build --configuration Release
           dotnet pack CycloneDX/CycloneDX.csproj --configuration Release --output $OUTPUT
-          docker build -f Dockerfile --build-arg VERSION=$VERSION -t $REPO:$VERSION -t $REPO:latest .
+          docker build -f Dockerfile --build-arg VERSION=$NUGETVERSION -t $REPO:$NUGETVERSION -t $REPO:latest .
 
       # We install the newly generated tool as bit of a "smoke test" and to generate an SBOM for the release
       - name: Install newly generated version of CLI tool
